@@ -1,9 +1,542 @@
-body { font-family: sans-serif; max-width: 900px; margin: 20px auto; padding: 10px; }
-input, textarea, select, button { padding: 8px; margin: 4px; }
-textarea { width: 100%; height: 100px; }
-.post { border: 1px solid #ccc; padding: 12px; margin: 10px 0; border-radius: 8px; }
-.post h3 { margin: 0 0 6px; }
-.tags { color: #666; font-size: 0.9em; }
-.comment { background: #f4f4f4; padding: 6px; margin: 4px 0; border-radius: 6px; }
-button { cursor: pointer; }
-.admin-row { border-bottom: 1px solid #ddd; padding: 6px 0; }
+/* ============================================================
+   БАЗА / ПЕРЕМЕННЫЕ / ТЕМЫ
+   ============================================================ */
+:root {
+  --bg: #f5f7fb;
+  --bg-card: #ffffff;
+  --bg-muted: #eef1f6;
+  --text: #1c2430;
+  --text-muted: #6b7785;
+  --border: #e2e7ee;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-soft: #eef2ff;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --shadow-sm: 0 1px 2px rgba(20, 30, 50, 0.06);
+  --shadow-md: 0 4px 14px rgba(20, 30, 50, 0.08);
+  --shadow-lg: 0 12px 32px rgba(20, 30, 50, 0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 18px;
+  --transition: 0.18s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f141b;
+    --bg-card: #161c24;
+    --bg-muted: #1e2630;
+    --text: #e6ecf3;
+    --text-muted: #97a3b3;
+    --border: #26303c;
+    --primary: #818cf8;
+    --primary-hover: #a5b4fc;
+    --primary-soft: #1e2540;
+    --danger: #f87171;
+    --danger-hover: #fca5a5;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+  transition: background var(--transition), color var(--transition);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   ШАПКА
+   ============================================================ */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 24px;
+  background: color-mix(in srgb, var(--bg-card) 85%, transparent);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+#authBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+#authBox b { color: var(--text); }
+
+/* ============================================================
+   ОСНОВНОЙ КОНТЕНТ
+   ============================================================ */
+main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+section {
+  margin-bottom: 32px;
+}
+
+section h2 {
+  margin: 0 0 16px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+section h4 {
+  margin: 18px 0 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================================
+   ФОРМА АВТОРИЗАЦИИ
+   ============================================================ */
+#authSection {
+  background: var(--bg-card);
+  padding: 28px 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  max-width: 420px;
+  margin: 24px auto 32px;
+}
+
+#authSection h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#authSection input {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+#authSection button {
+  width: 100%;
+  margin-top: 6px;
+}
+
+#authMsg {
+  min-height: 1.2em;
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   ПОЛЯ ВВОДА
+   ============================================================ */
+input,
+textarea,
+select {
+  font: inherit;
+  color: var(--text);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+textarea {
+  width: 100%;
+  min-height: 110px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* ============================================================
+   КНОПКИ
+   ============================================================ */
+button {
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: var(--primary);
+  color: #fff;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  white-space: nowrap;
+}
+
+button:hover { background: var(--primary-hover); }
+button:active { transform: translateY(1px); }
+button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 40%, transparent);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Второстепенные кнопки (внутри форм и карточек) */
+#authSection button + button,
+.post button,
+.admin-row button {
+  background: var(--bg-muted);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+#authSection button + button:hover,
+.post button:hover,
+.admin-row button:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+}
+
+/* Кнопка logout в шапке */
+#authBox button {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  background: var(--bg-muted);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+#authBox button:hover {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+/* ============================================================
+   СОЗДАНИЕ ПОСТА
+   ============================================================ */
+#createSection {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-md);
+}
+
+#createSection input,
+#createSection select {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+#createSection textarea {
+  margin-bottom: 10px;
+}
+
+#createSection button {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+}
+
+/* ============================================================
+   ФИЛЬТРЫ И СОРТИРОВКА
+   ============================================================ */
+#filterSection h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+#filterSection > input,
+#filterSection > button,
+#filterSection > select {
+  margin-right: 6px;
+  margin-bottom: 8px;
+}
+
+#searchTag { min-width: 220px; }
+
+/* ============================================================
+   КАРТОЧКИ ПОСТОВ
+   ============================================================ */
+#postsBox {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.post {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
+  animation: fadeIn 0.3s ease;
+}
+
+.post:hover {
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
+}
+
+.post h3 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.post > p {
+  margin: 12px 0 4px;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.post button {
+  margin: 6px 6px 6px 0;
+  padding: 7px 12px;
+  font-size: 0.87rem;
+}
+
+.tags {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.tags::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+/* ============================================================
+   КОММЕНТАРИИ
+   ============================================================ */
+.comment {
+  background: var(--bg-muted);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 6px 0;
+  font-size: 0.93rem;
+  line-height: 1.5;
+  word-break: break-word;
+  transition: background var(--transition);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.comment b {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.comment button {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+}
+
+.comment button:hover {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+/* Поле ввода комментария */
+.post > input[id^="cInput-"] {
+  width: calc(100% - 130px);
+  margin-top: 8px;
+  margin-right: 8px;
+}
+
+.post > button[onclick^="addComment"] {
+  margin-top: 8px;
+}
+
+/* ============================================================
+   АДМИНКА
+   ============================================================ */
+#adminSection {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-md);
+}
+
+.admin-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.92rem;
+}
+
+.admin-row:last-child { border-bottom: none; }
+
+.admin-row b {
+  color: var(--text);
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.admin-row button {
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
+
+/* ============================================================
+   АНИМАЦИИ
+   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   АДАПТИВ
+   ============================================================ */
+@media (max-width: 640px) {
+  body { font-size: 15px; }
+
+  header {
+    padding: 12px 16px;
+  }
+
+  header h1 { font-size: 1.1rem; }
+
+  #authBox { font-size: 0.85rem; }
+
+  main { padding: 16px 12px 48px; }
+
+  #authSection {
+    padding: 22px 18px;
+    margin: 12px auto 24px;
+  }
+
+  #createSection,
+  #adminSection {
+    padding: 16px;
+  }
+
+  .post {
+    padding: 16px;
+    border-radius: var(--radius);
+  }
+
+  .post h3 { font-size: 1.08rem; }
+
+  #filterSection > input,
+  #filterSection > button,
+  #filterSection > select {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  #searchTag { min-width: 0; }
+
+  .post > input[id^="cInput-"] {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .post > button[onclick^="addComment"] {
+    width: 100%;
+  }
+
+  .admin-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-row button { width: 100%; }
+}
+
+@media (max-width: 380px) {
+  header h1 { font-size: 1rem; }
+  #authBox button { padding: 5px 10px; font-size: 0.8rem; }
+}
+
+/* ============================================================
+   УТИЛИТЫ / ДОПОЛНИТЕЛЬНО
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track { background: transparent; }
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
