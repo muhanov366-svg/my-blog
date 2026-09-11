@@ -1,0 +1,9 @@
+body { font-family: sans-serif; max-width: 900px; margin: 20px auto; padding: 10px; }
+input, textarea, select, button { padding: 8px; margin: 4px; }
+textarea { width: 100%; height: 100px; }
+.post { border: 1px solid #ccc; padding: 12px; margin: 10px 0; border-radius: 8px; }
+.post h3 { margin: 0 0 6px; }
+.tags { color: #666; font-size: 0.9em; }
+.comment { background: #f4f4f4; padding: 6px; margin: 4px 0; border-radius: 6px; }
+button { cursor: pointer; }
+.admin-row { border-bottom: 1px solid #ddd; padding: 6px 0; }
