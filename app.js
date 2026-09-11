@@ -63,7 +63,8 @@ function afterLogin() {
 // --------- ПОСТЫ ---------
 async function loadPosts() {
   cachedPosts = await api('getPosts', {
-    viewerRole: currentUser ? currentUser.role : 'guest'
+    viewerRole: currentUser ? currentUser.role : 'guest',
+    viewerId: currentUser ? currentUser.id : null
   });
 }
 
