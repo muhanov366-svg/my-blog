@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Мой блог</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>📝 Мой блог</h1>
+    <div id="authBox"></div>
+  </header>
+
+  <main>
+    <!-- АВТОРИЗАЦИЯ -->
+    <section id="authSection">
+      <h2>Вход / Регистрация</h2>
+      <input id="loginInput" placeholder="Логин">
+      <input id="passInput" type="password" placeholder="Пароль">
+      <button onclick="doLogin()">Войти</button>
+      <button onclick="doRegister()">Зарегистрироваться</button>
+      <p id="authMsg"></p>
+    </section>
+
+    <!-- СОЗДАНИЕ ПОСТА -->
+    <section id="createSection" style="display:none">
+      <h2>Новый пост</h2>
+      <input id="pTitle" placeholder="Заголовок">
+      <textarea id="pContent" placeholder="Текст поста"></textarea>
+      <input id="pTags" placeholder="Теги через запятую">
+      <select id="pVisibility">
+        <option value="public">Публичный</option>
+        <option value="tag">Скрытый (только по тегу)</option>
+      </select>
+      <button onclick="createPost()">Опубликовать</button>
+    </section>
+
+    <!-- ФИЛЬТРЫ -->
+    <section id="filterSection">
+      <h2>Посты</h2>
+      <input id="searchTag" placeholder="Найти скрытый пост по тегу">
+      <button onclick="findByTag()">Найти по тегу</button>
+      <select id="sortSelect" onchange="renderPosts()">
+        <option value="new">Сначала новые</option>
+        <option value="old">Сначала старые</option>
+        <option value="title">По заголовку</option>
+        <option value="author">По автору</option>
+      </select>
+      <div id="postsBox"></div>
+    </section>
+
+    <!-- АДМИНКА -->
+    <section id="adminSection" style="display:none">
+      <h2>Админ-панель</h2>
+      <div id="adminBox"></div>
+    </section>
+  </main>
+
+<script src="app.js"></script>
+</body>
+</html>
