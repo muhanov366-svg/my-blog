@@ -1,5 +1,5 @@
 // ⚠️ Вставь сюда URL своего Web App (из Apps Script)
-const API_URL = 'https://script.google.com/macros/s/AKfycbwIQ_PX9mz0H4wU-9WqDCCAqYF4As5Q5pvOnD5Zzyp875wJpSi-1rUAN-7MkDpwZG_i/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxBw5dzXtDGweR2Hg0Z8hoKKxc5_dXimRN8MrHOLRczJetn1ORGipvrGzbgITk4slJI/exec';
 
 let currentUser = null; // {id, login, role, canPost, canComment}
 let cachedPosts = [];
