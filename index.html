@@ -2,59 +2,121 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Мой блог</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мой блог · British Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>📝 Мой блог</h1>
-    <div id="authBox"></div>
+
+  <div class="flag-stripe" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="crown" aria-hidden="true">♛</span>
+        <h1>Мой блог</h1>
+        <span class="brand-sub">Est. MMXXV · London</span>
+      </div>
+      <div id="authBox" class="auth-box"></div>
+    </div>
   </header>
 
-  <main>
+  <main class="container">
+
     <!-- АВТОРИЗАЦИЯ -->
-    <section id="authSection">
+    <section id="authSection" class="card auth-card">
       <h2>Вход / Регистрация</h2>
-      <input id="loginInput" placeholder="Логин">
-      <input id="passInput" type="password" placeholder="Пароль">
-      <button onclick="doLogin()">Войти</button>
-      <button onclick="doRegister()">Зарегистрироваться</button>
-      <p id="authMsg"></p>
+      <p class="muted">Пожалуйста, представьтесь, сэр или мадам.</p>
+      <div class="field-row">
+        <input id="loginInput" placeholder="Логин" autocomplete="username">
+        <input id="passInput" type="password" placeholder="Пароль" autocomplete="current-password">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="doLogin()">Войти</button>
+        <button class="btn btn-ghost" onclick="doRegister()">Зарегистрироваться</button>
+      </div>
+      <p id="authMsg" class="msg"></p>
     </section>
 
     <!-- СОЗДАНИЕ ПОСТА -->
-    <section id="createSection" style="display:none">
+    <section id="createSection" class="card" style="display:none">
       <h2>Новый пост</h2>
+      <p class="muted">Изложите свои мысли достойно печатного слова.</p>
       <input id="pTitle" placeholder="Заголовок">
-      <textarea id="pContent" placeholder="Текст поста"></textarea>
-      <input id="pTags" placeholder="Теги через запятую">
-      <select id="pVisibility">
-        <option value="public">Публичный</option>
-        <option value="tag">Скрытый (только по тегу)</option>
-      </select>
-      <button onclick="createPost()">Опубликовать</button>
+
+      <div class="editor-wrap">
+        <textarea id="pContent" placeholder="Текст поста"></textarea>
+
+        <div class="emoji-bar">
+          <span class="emoji-bar-label">Смайлы:</span>
+          <button type="button" class="emoji-btn" onclick="insertEmoji('pContent','😀')">😀</button>
+          <button type="button" class="emoji-btn" onclick="insertEmoji('pContent','😄')">😄</button>
+          <button type="button" class="emoji-btn" onclick="insertEmoji('pContent','😂')">😂</button>
+          <button type="button" class="emoji-btn" onclick="insertEmoji('pContent','😊')">😊</button>
+          <button type="button" class="emoji-btn" onclick="insertEmoji('pContent','😍')">😍</button>
+          <button type="button" class="emoji-btn" onclick="insertEmoji('pContent','🤔')">🤔</button>
+          <button type="button" class="emoji-btn" onclick="insertEmoji('pContent','👍')">👍</button>
+          <button type="button" class="emoji-btn" onclick="insertEmoji('pContent','🔥')">🔥</button>
+          <button type="button" class="emoji-btn" onclick="insertEmoji('pContent','❤️')">❤️</button>
+          <button type="button" class="emoji-btn emoji-more" onclick="toggleEmojiPicker('pContent')">😀 Ещё ▾</button>
+        </div>
+
+        <div id="emojiPicker-pContent" class="emoji-picker" style="display:none"></div>
+      </div>
+
+      <div class="field-row">
+        <input id="pTags" placeholder="Теги через запятую">
+        <select id="pVisibility">
+          <option value="public">Публичный</option>
+          <option value="tag">Скрытый (только по тегу)</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="createPost()">Опубликовать</button>
+      </div>
     </section>
 
-    <!-- ФИЛЬТРЫ -->
-    <section id="filterSection">
-      <h2>Посты</h2>
-      <input id="searchTag" placeholder="Найти скрытый пост по тегу">
-      <button onclick="findByTag()">Найти по тегу</button>
-      <select id="sortSelect" onchange="renderPosts()">
-        <option value="new">Сначала новые</option>
-        <option value="old">Сначала старые</option>
-        <option value="title">По заголовку</option>
-        <option value="author">По автору</option>
-      </select>
-      <div id="postsBox"></div>
+    <!-- ФИЛЬТРЫ + ПОСТЫ -->
+    <section id="filterSection" class="card">
+      <div class="section-head">
+        <h2>Посты</h2>
+        <span class="rule" aria-hidden="true"></span>
+      </div>
+
+      <div class="filters">
+        <input id="searchTag" placeholder="Найти скрытый пост по тегу">
+        <button class="btn btn-ghost" onclick="findByTag()">Найти по тегу</button>
+        <select id="sortSelect" onchange="renderPosts()">
+          <option value="new">Сначала новые</option>
+          <option value="old">Сначала старые</option>
+          <option value="title">По заголовку</option>
+          <option value="author">По автору</option>
+        </select>
+      </div>
+
+      <div id="postsBox" class="posts-box"></div>
     </section>
 
     <!-- АДМИНКА -->
-    <section id="adminSection" style="display:none">
-      <h2>Админ-панель</h2>
+    <section id="adminSection" class="card" style="display:none">
+      <div class="section-head">
+        <h2>Админ-панель</h2>
+        <span class="rule" aria-hidden="true"></span>
+      </div>
       <div id="adminBox"></div>
     </section>
+
   </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span class="rule" aria-hidden="true"></span>
+      <p class="muted small">© Мой блог · Keep calm and carry on.</p>
+    </div>
+  </footer>
 
 <script src="app.js"></script>
 </body>
