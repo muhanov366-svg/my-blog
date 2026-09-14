@@ -385,8 +385,136 @@ async function adminToggle(targetId, field, value) {
   } catch (e) { alert('❌ ' + e.message); }
 }
 
+// ============================================================
+// --------- АВТООБНОВЛЕНИЕ ---------
+// ============================================================
+const AUTO_REFRESH_MS = 15000;   // как часто проверять версию
+const AUTO_REFRESH_MAX_MS = 60000; // максимальный интервал при простое
+
+let lastStateVersion = null;
+let refreshTimer = null;
+let refreshInFlight = false;
+let idleStreak = 0;              // сколько проверок подряд версия не менялась
+
+// Проверяем, «занят» ли пользователь (печатает / открыт диалог)
+function isUserBusy() {
+  const ae = document.activeElement;
+  if (!ae) return false;
+  const tag = ae.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+    // если в поле уже что-то введено — не мешаем
+    if (ae.value && ae.value.length > 0) return true;
+  }
+  return false;
+}
+
+// Сохраняем ввод в поля комментариев + позицию скролла,
+// чтобы после перерисовки не потерять текст пользователя
+function captureDraftState() {
+  const drafts = {};
+  document.querySelectorAll('input[id^="cInput-"]').forEach(inp => {
+    if (inp.value && inp.value.length > 0) {
+      drafts[inp.id] = inp.value;
+    }
+  });
+  return {
+    drafts,
+    scrollY: window.scrollY
+  };
+}
+
+function restoreDraftState(state) {
+  if (!state) return;
+  for (const [id, val] of Object.entries(state.drafts || {})) {
+    const el = document.getElementById(id);
+    if (el && (!el.value || el.value.length === 0)) {
+      el.value = val;
+    }
+  }
+  if (typeof state.scrollY === 'number') {
+    window.scrollTo(0, state.scrollY);
+  }
+}
+
+async function checkForUpdates() {
+  if (refreshInFlight) return;
+  if (document.hidden) return;        // вкладка неактивна — не дёргаем
+  if (isUserBusy()) return;           // пользователь печатает — не мешаем
+
+  refreshInFlight = true;
+  try {
+    const { version } = await api('getStateVersion', {});
+
+    if (lastStateVersion === null) {
+      lastStateVersion = version;
+      return;
+    }
+
+    if (version !== lastStateVersion) {
+      lastStateVersion = version;
+      idleStreak = 0;
+
+      const draft = captureDraftState();
+      await renderPosts();
+      restoreDraftState(draft);
+
+      if (currentUser && currentUser.role === 'admin') {
+        await loadAdmin();
+      }
+    } else {
+      idleStreak++;
+      // адаптивный интервал: если давно ничего не меняется — опрашиваем реже
+      if (idleStreak >= 5 && refreshTimer && !refreshTimer._slow) {
+        scheduleNextRefresh(AUTO_REFRESH_MAX_MS, true);
+      }
+    }
+  } catch (e) {
+    // тихо игнорируем сетевые ошибки, чтобы не спамить alert
+    console.warn('auto-refresh failed:', e);
+  } finally {
+    refreshInFlight = false;
+  }
+}
+
+// Планировщик с возможностью менять интервал на ходу
+function scheduleNextRefresh(delay, slow) {
+  stopAutoRefresh();
+  refreshTimer = setTimeout(async function tick() {
+    await checkForUpdates();
+    // после проверки планируем следующую с учётом idle
+    const nextDelay = (idleStreak >= 5) ? AUTO_REFRESH_MAX_MS : AUTO_REFRESH_MS;
+    refreshTimer._slow = (idleStreak >= 5);
+    refreshTimer = setTimeout(tick, nextDelay);
+    refreshTimer._slow = (idleStreak >= 5);
+  }, delay);
+  refreshTimer._slow = !!slow;
+}
+
+function startAutoRefresh() {
+  scheduleNextRefresh(AUTO_REFRESH_MS, false);
+}
+
+function stopAutoRefresh() {
+  if (refreshTimer) {
+    clearTimeout(refreshTimer);
+    refreshTimer = null;
+  }
+}
+
+// При возврате на вкладку — сразу проверяем (могли пропустить изменения)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    // сбрасываем «ленивый» режим и проверяем сразу
+    idleStreak = 0;
+    checkForUpdates();
+  }
+});
+
+// Сбрасываем таймер при уходе со страницы
+window.addEventListener('beforeunload', stopAutoRefresh);
+
 // --------- СТАРТ ---------
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   const saved = localStorage.getItem('blogUser');
   if (saved) {
     try {
@@ -395,9 +523,18 @@ window.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       console.error('Не удалось прочитать сохранённого пользователя:', e);
       localStorage.removeItem('blogUser');
-      renderPosts();
+      await renderPosts();
     }
   } else {
-    renderPosts();
+    await renderPosts();
   }
+
+  // Запоминаем стартовую версию и включаем автоопрос
+  try {
+    const { version } = await api('getStateVersion', {});
+    lastStateVersion = version;
+  } catch (e) {
+    console.warn('Не удалось получить стартовую версию:', e);
+  }
+  startAutoRefresh();
 });
